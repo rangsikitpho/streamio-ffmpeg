@@ -116,7 +116,7 @@ module FFMPEG
         transcoder = Transcoder.new(movie, "#{tmp_path}/fail.flv")
         lambda { transcoder.run }.should raise_error(RuntimeError, /no output file created/)
       end
-      
+
       it "should fail if duration differs from original" do
         movie = Movie.new("#{fixture_path}/sounds/napoleon.mp3")
         movie.stub!(:duration).and_return(200)
@@ -158,6 +158,15 @@ module FFMPEG
         expect { 
           Transcoder.new(movie, "#{tmp_path}/durationalized.mp4", :duration => 10).run
         }.to_not raise_error
+      end
+
+      it "should skip the encoding validation if skip_encoding_validation transcoder option is true" do
+        movie = Movie.new("#{fixture_path}/movies/awesome movie.mov")
+        transcoder_options = { :skip_encoding_validation => true }
+        transcoder = Transcoder.new(movie, "#{tmp_path}/skip encoding validation.flv", {}, transcoder_options)
+        output_movie = stub(Movie, :valid? => false)
+        transcoder.stub!(:encoded).and_return(output_movie)
+        lambda { transcoder.run }.should_not raise_error(RuntimeError)
       end
     end
   end

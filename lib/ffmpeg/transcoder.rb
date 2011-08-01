@@ -69,6 +69,7 @@ module FFMPEG
       end
       
       unless encoded.valid?
+        return true if @skip_encoding_validation
         @errors << "encoded file is invalid"
         return false
       end
@@ -104,6 +105,8 @@ module FFMPEG
         new_width += 1 if new_width.odd?
         @raw_options[:resolution] = "#{new_width}x#{@raw_options.height}"
       end
+
+      @skip_encoding_validation = !! @transcoder_options[:skip_encoding_validation]
     end
     
     def validate_duration?
